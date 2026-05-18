@@ -54,6 +54,28 @@ export const TopHeader = () => {
             <LaptopIcon size={14} className="mr-1 flex-shrink-0" />
             <span className="hidden sm:inline">Masomo Portal</span>
           </a>
+
+          <a 
+            href="https://cms.acop.co.ke/acopcmsportalcollege"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center hover:text-primary whitespace-nowrap"
+          >
+            <LaptopIcon size={14} className="mr-1 flex-shrink-0" />
+            <span className="hidden sm:inline">CMS Portal</span>
+          </a>
+
+          <a 
+            href="https://app-eu1.hubspot.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center hover:text-primary whitespace-nowrap"
+          >
+            <LaptopIcon size={14} className="mr-1 flex-shrink-0" />
+            <span className="hidden sm:inline">CRM Portal</span>
+          </a>
+
+
         </div>
       </div>
     </div>
