@@ -6,9 +6,10 @@ import { Bookmark } from 'lucide-react'
 interface ShareButtonsProps {
   title: string
   shareText: string
+  authorName?: string | null
 }
 
-export function ShareButtons({ title, shareText }: ShareButtonsProps) {
+export function ShareButtons({ title, shareText, authorName }: ShareButtonsProps) {
   // Helper function to get current URL
   const getCurrentUrl = () => {
     if (typeof window !== 'undefined') {
@@ -17,33 +18,58 @@ export function ShareButtons({ title, shareText }: ShareButtonsProps) {
     return ''
   }
 
+  // Create share text with author name
+  const getShareText = () => {
+    let text = title
+    if (authorName) {
+      text = `${title} by ${authorName}`
+    }
+    return text
+  }
+
+  // Get full message for sharing
+  const getFullMessage = () => {
+    const shareTitle = getShareText()
+    return `${shareTitle} - ${shareText}`
+  }
+
   const shareOnFacebook = () => {
     const url = getCurrentUrl()
-    window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank', 'width=600,height=400')
+    const message = getShareText()
+    window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}&quote=${encodeURIComponent(message)}`, '_blank', 'width=600,height=400')
   }
 
   const shareOnTwitter = () => {
     const url = getCurrentUrl()
-    window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(url)}`, '_blank', 'width=600,height=400')
+    const message = getFullMessage()
+    window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(message)}&url=${encodeURIComponent(url)}`, '_blank', 'width=600,height=400')
   }
 
   const shareOnLinkedIn = () => {
     const url = getCurrentUrl()
-    window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`, '_blank', 'width=600,height=400')
+    const message = getFullMessage()
+    window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}&title=${encodeURIComponent(getShareText())}&summary=${encodeURIComponent(shareText)}`, '_blank', 'width=600,height=400')
   }
 
   const shareOnWhatsApp = () => {
     const url = getCurrentUrl()
-    window.open(`https://wa.me/?text=${encodeURIComponent(title)}%20${encodeURIComponent(url)}`, '_blank', 'width=600,height=400')
+    const message = getFullMessage()
+    window.open(`https://wa.me/?text=${encodeURIComponent(message)}%20${encodeURIComponent(url)}`, '_blank', 'width=600,height=400')
   }
 
   const copyToClipboard = async () => {
     const url = getCurrentUrl()
     try {
       await navigator.clipboard.writeText(url)
-      alert('Link copied to clipboard!')
+      // Optional: Show a toast notification instead of alert
+      const toast = document.createElement('div')
+      toast.textContent = 'Link copied to clipboard!'
+      toast.className = 'fixed bottom-20 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-4 py-2 rounded-lg text-sm z-50 animate-fade-in-out'
+      document.body.appendChild(toast)
+      setTimeout(() => toast.remove(), 2000)
     } catch (err) {
       console.error('Failed to copy:', err)
+      alert('Failed to copy link. Please try again.')
     }
   }
 
@@ -185,6 +211,19 @@ export function ShareButtons({ title, shareText }: ShareButtonsProps) {
           </button>
         </div>
       </div>
+
+      {/* Optional: Add CSS for fade animation */}
+      <style jsx>{`
+        @keyframes fadeInOut {
+          0% { opacity: 0; transform: translate(-50%, 10px); }
+          15% { opacity: 1; transform: translate(-50%, 0); }
+          85% { opacity: 1; transform: translate(-50%, 0); }
+          100% { opacity: 0; transform: translate(-50%, -10px); }
+        }
+        .animate-fade-in-out {
+          animation: fadeInOut 2s ease-in-out forwards;
+        }
+      `}</style>
     </>
   )
 }
