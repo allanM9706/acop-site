@@ -26,7 +26,7 @@ export const metadata: Metadata = {
   ].join(", "),
   robots: "index, follow",
   alternates: {
-    canonical: "https://www.acop.co.ke/get-started",
+    canonical: "https://www.acop.co.ke/Septemberintake2026",
   },
   openGraph: {
     title: "September 2026 Intake | Apply to Africana College of Professionals",
