@@ -8,6 +8,7 @@ import {
   MapPinIcon,
   PhoneIcon,
   MailIcon,
+  ShieldCheckIcon,
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -88,6 +89,16 @@ export const Footer = () => {
                     className="text-white/80 hover:text-accent"
                   >
                     Contact
+                  </Link>
+                </li>
+                {/* Certificate Verification Link - NEW */}
+                <li>
+                  <Link
+                    href="/verify"
+                    className="text-white/80 hover:text-accent flex items-center gap-2"
+                  >
+                    <ShieldCheckIcon size={16} />
+                    Verify Certificate
                   </Link>
                 </li>
                 <li>

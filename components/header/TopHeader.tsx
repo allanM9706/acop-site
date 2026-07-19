@@ -1,12 +1,14 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 import {
   PhoneIcon,
   MailIcon,
   UserIcon,
   UsersIcon,
   LaptopIcon,
+  ShieldCheckIcon,
 } from 'lucide-react';
 
 export const TopHeader = () => {
@@ -35,16 +37,28 @@ export const TopHeader = () => {
         </div>
 
         <div className="flex items-center space-x-4">
+          {/* Scholarship Link */}
           <a href="#scholarship" className="flex items-center hover:text-primary whitespace-nowrap">
             <UserIcon size={14} className="mr-1 flex-shrink-0" />
             <span className="hidden sm:inline">Scholarship</span>
           </a>
 
+          {/* Alumni Link */}
           <a href="#alumni" className="flex items-center hover:text-primary whitespace-nowrap">
             <UsersIcon size={14} className="mr-1 flex-shrink-0" />
             <span className="hidden sm:inline">Alumni</span>
           </a>
 
+          {/* Certificate Verification Link - Using Next.js Link */}
+          <Link
+            href="/verify"
+            className="flex items-center hover:text-primary whitespace-nowrap font-medium text-primary"
+          >
+            <ShieldCheckIcon size={14} className="mr-1 flex-shrink-0" />
+            <span className="hidden sm:inline">Verify Certificate</span>
+          </Link>
+
+          {/* Masomo Portal */}
           <a
             href="https://moodle-200882-0.cloudclusters.net/"
             target="_blank"
@@ -55,6 +69,7 @@ export const TopHeader = () => {
             <span className="hidden sm:inline">Masomo Portal</span>
           </a>
 
+          {/* CMS Portal */}
           <a 
             href="https://cms.acop.co.ke/acopcmsportalcollege"
             target="_blank"
@@ -65,6 +80,7 @@ export const TopHeader = () => {
             <span className="hidden sm:inline">CMS Portal</span>
           </a>
 
+          {/* CRM Portal */}
           <a 
             href="https://app-eu1.hubspot.com/"
             target="_blank"
@@ -74,8 +90,6 @@ export const TopHeader = () => {
             <LaptopIcon size={14} className="mr-1 flex-shrink-0" />
             <span className="hidden sm:inline">CRM Portal</span>
           </a>
-
-
         </div>
       </div>
     </div>
