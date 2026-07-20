@@ -23,7 +23,7 @@ export async function generateMetadata({
   
   const websiteUrl = 'https://www.acop.co.ke';
   const pageUrl = `${websiteUrl}/workshop`;
-  const ogImageUrl = `${websiteUrl}/workshop.jpeg`;
+  const ogImageUrl = `${websiteUrl}/workshop.webp`;
 
   return {
     title: `${workshopTitle} | Workshop Access | Africana College of Professionals`,
