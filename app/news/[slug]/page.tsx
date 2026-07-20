@@ -82,10 +82,14 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const websiteUrl = 'https://www.acop.co.ke'
   const articleUrl = `${websiteUrl}/news/${article.slug}`
   
-  // Get author name for metadata
-  const authorName = article.author?.node?.firstName || article.author?.node?.lastName
+  // Check if this is an event
+  const primaryType = article.newsMetadata?.newsType?.[0] || 'general'
+  const isEvent = primaryType === 'event'
+
+  // Only get author name for non-event posts
+  const authorName = !isEvent && (article.author?.node?.firstName || article.author?.node?.lastName)
     ? `${article.author?.node?.firstName || ''} ${article.author?.node?.lastName || ''}`.trim()
-    : article.author?.node?.name || null
+    : !isEvent ? article.author?.node?.name || null : null
   
   let ogImageUrl = `${websiteUrl}/acoplogo.jpg`
   
@@ -239,16 +243,16 @@ export default async function NewsDetailPage({ params }: { params: Promise<{ slu
                 <Calendar className="w-4 h-4" />
                 <span>{formattedDate}</span>
               </div>
-              {authorName && (
-                <div className="flex items-center gap-2">
-                  {article.author?.node?.avatar?.url && (
-                    <div className="relative w-6 h-6 rounded-full overflow-hidden ring-2 ring-white/30">
-                      <Image src={article.author.node.avatar.url} alt={authorName} fill className="object-cover" unoptimized />
-                    </div>
-                  )}
-                  <span>By {authorName}</span>
-                </div>
-              )}
+             {!isEvent && authorName && (
+              <div className="flex items-center gap-2">
+                {article.author?.node?.avatar?.url && (
+                  <div className="relative w-6 h-6 rounded-full overflow-hidden ring-2 ring-white/30">
+                    <Image src={article.author.node.avatar.url} alt={authorName} fill className="object-cover" unoptimized />
+                  </div>
+                )}
+                <span>By {authorName}</span>
+              </div>
+            )}
               <div className="flex items-center gap-2">
                 <Clock className="w-4 h-4" />
                 <span>{readingTime} min read</span>
