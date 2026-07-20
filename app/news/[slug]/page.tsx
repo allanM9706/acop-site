@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
-import { getNewsBySlug, getAllNewsSlugs, formatDate, decodeHtmlEntities, getAllNews } from '@/lib/wordpress'
+import { getNewsBySlug, getAllNewsSlugs, formatDate, decodeHtmlEntities, getAllNews, formatEventDateRange } from '@/lib/wordpress'
 import type { Metadata } from 'next'
 import { 
   Calendar, MapPin, Link as LinkIcon, AlertTriangle, Download, ChevronRight, Clock, 
@@ -308,6 +308,7 @@ export default async function NewsDetailPage({ params }: { params: Promise<{ slu
                 )}
 
                 {/* Event Details Card */}
+               {/* Event Details Card - UPDATED with date range */}
                 {isEvent && (metadata?.eventDate || metadata?.eventVenue || metadata?.eventLink) && (
                   <div className="bg-purple-50 rounded-2xl p-6 mb-8">
                     <h3 className="font-bold text-lg mb-4 flex items-center gap-2 text-purple-700">
@@ -315,23 +316,41 @@ export default async function NewsDetailPage({ params }: { params: Promise<{ slu
                       Event Details
                     </h3>
                     <div className="grid md:grid-cols-2 gap-4">
+                      {/* Date - Now supports both single and range */}
                       {metadata?.eventDate && (
                         <div className="flex items-center gap-2">
-                          <Calendar className="w-4 h-4 text-purple-600" />
-                          <span>{metadata.eventDate}</span>
-                          {metadata.eventTime && <span>• {metadata.eventTime}</span>}
+                          <Calendar className="w-4 h-4 text-purple-600 flex-shrink-0" />
+                          <span>
+                            {formatEventDateRange(metadata.eventDate, metadata.eventenddate || null)}
+                          </span>
                         </div>
                       )}
+                      {/* Time */}
+                      {metadata?.eventTime && (
+                        <div className="flex items-center gap-2">
+                          <Clock className="w-4 h-4 text-purple-600 flex-shrink-0" />
+                          <span>{metadata.eventTime}</span>
+                        </div>
+                      )}
+                      {/* Venue */}
                       {metadata?.eventVenue && (
                         <div className="flex items-center gap-2">
-                          <MapPin className="w-4 h-4 text-purple-600" />
+                          <MapPin className="w-4 h-4 text-purple-600 flex-shrink-0" />
                           <span>{metadata.eventVenue}</span>
                         </div>
                       )}
+                      {/* Link */}
                       {metadata?.eventLink && (
                         <div className="flex items-center gap-2">
-                          <LinkIcon className="w-4 h-4 text-purple-600" />
-                          <a href={metadata.eventLink} target="_blank" rel="noopener noreferrer" className="text-purple-600 hover:underline">Event Link</a>
+                          <LinkIcon className="w-4 h-4 text-purple-600 flex-shrink-0" />
+                          <a 
+                            href={metadata.eventLink} 
+                            target="_blank" 
+                            rel="noopener noreferrer" 
+                            className="text-purple-600 hover:underline"
+                          >
+                            Event Link
+                          </a>
                         </div>
                       )}
                     </div>

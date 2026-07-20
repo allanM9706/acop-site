@@ -62,8 +62,9 @@ export interface Attachment {
 export interface NewsMetadata {
   newsType: string[];
   body: string;
-  eventDate: string | null;
-  eventTime: string | null;
+  eventDate: string | null;       // Start date - from Date Picker (F j, Y format)
+  eventenddate: string | null;    // NEW: End date - from Date Picker (F j, Y format) - optional
+  eventTime: string | null;       // From Time Picker (g:i A format)
   eventVenue: string | null;
   eventLink: string | null;
   deadlineDate: string | null;
@@ -275,6 +276,117 @@ export function getCourseTypeDisplayName(courseType: string[]): string {
 }
 
 // ============================================
+// Event Date Range Helper Functions (NEW)
+// ============================================
+
+/**
+ * Format event date as a range or single date
+ * Handles: "20 July 2026" or "20 - 22 July 2026"
+ */
+export function formatEventDateRange(
+  startDate: string | null,
+  endDate: string | null
+): string {
+  if (!startDate) return 'Date TBD';
+
+  const start = new Date(startDate);
+
+  // If no end date or same as start, return single date
+  if (!endDate || startDate === endDate) {
+    return start.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+  }
+
+  const end = new Date(endDate);
+
+  // Same month and year - show "20 - 22 July 2026"
+  if (
+    start.getMonth() === end.getMonth() &&
+    start.getFullYear() === end.getFullYear()
+  ) {
+    return `${start.getDate()} - ${end.getDate()} ${start.toLocaleDateString(
+      'en-US',
+      { month: 'long', year: 'numeric' }
+    )}`;
+  }
+
+  // Different months - show "20 July - 22 August 2026"
+  return `${start.toLocaleDateString('en-US', {
+    day: 'numeric',
+    month: 'long',
+  })} - ${end.toLocaleDateString('en-US', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  })}`;
+}
+
+/**
+ * Check if event is multi-day
+ */
+export function isMultiDayEvent(
+  startDate: string | null,
+  endDate: string | null
+): boolean {
+  if (!startDate || !endDate) return false;
+  return startDate !== endDate;
+}
+
+/**
+ * Check if event is in the future
+ */
+export function isUpcomingEvent(date: string | null): boolean {
+  if (!date) return false;
+  return new Date(date) > new Date();
+}
+
+/**
+ * Check if event is in the past
+ */
+export function isPastEvent(date: string | null): boolean {
+  if (!date) return false;
+  return new Date(date) < new Date();
+}
+
+/**
+ * Check if event is happening now
+ */
+export function isCurrentEvent(
+  startDate: string | null,
+  endDate: string | null
+): boolean {
+  if (!startDate) return false;
+
+  const now = new Date();
+  const start = new Date(startDate);
+
+  // If no end date, check if event is today
+  if (!endDate) {
+    return start.toDateString() === now.toDateString();
+  }
+
+  const end = new Date(endDate);
+  return now >= start && now <= end;
+}
+
+/**
+ * Get event status text
+ */
+export function getEventStatus(
+  startDate: string | null,
+  endDate: string | null
+): 'upcoming' | 'ongoing' | 'past' | 'unknown' {
+  if (!startDate) return 'unknown';
+
+  if (isCurrentEvent(startDate, endDate)) return 'ongoing';
+  if (isUpcomingEvent(startDate)) return 'upcoming';
+  return 'past';
+}
+
+// ============================================
 // News Functions
 // ============================================
 
@@ -333,6 +445,7 @@ export async function getAllNews(): Promise<NewsArticle[]> {
             newsType
             body
             eventDate
+            eventenddate
             eventTime
             eventVenue
             eventLink
@@ -411,6 +524,7 @@ export async function getNewsBySlug(slug: string): Promise<NewsArticle | null> {
           newsType
           body
           eventDate
+          eventenddate
           eventTime
           eventVenue
           eventLink
