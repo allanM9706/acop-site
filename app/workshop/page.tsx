@@ -17,7 +17,7 @@ export const revalidate = false;
 
 // Default workshop details - easily updateable
 const DEFAULT_WORKSHOP = {
-  title: "Teachers' Mindful Self-Compassion Online Workshop",
+  title: "DAY 2 WORKSHOP SESSION ACCESS BOARD - Teachers' Mindful Self-Compassion Online Workshop",
   date: '20th - 22nd July 2026',
   time: '6:00 p.m. - 8:00 p.m. (EAT)',
   facilitator: 'Dr. Susan Gitau',
@@ -55,7 +55,7 @@ export async function generateMetadata({
     },
     openGraph: {
       title: `${workshopTitle} | Africana College of Professionals`,
-      description: `Access your workshop session. ${workshopTitle} with facilitator ${facilitator} on ${workshopDate}.`,
+      description: `Access DAY 2 workshop session. ${workshopTitle} with facilitator ${facilitator} on ${workshopDate}.`,
       url: pageUrl,
       siteName: 'Africana College of Professionals',
       type: 'website',
