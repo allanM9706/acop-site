@@ -77,40 +77,6 @@ const WorkshopRoom = ({
 
           {/* Meeting Info */}
           <div className="p-6 space-y-6">
-            {/* Today's Agenda - Full Program */}
-            <div className="bg-purple-50 rounded-xl p-4 border border-purple-100">
-              <h4 className="font-semibold text-purple-700 mb-3 flex items-center gap-2">
-                <BookOpen className="w-4 h-4" />
-                Today&apos;s Program - Day 2
-              </h4>
-              <div className="space-y-2 text-sm text-gray-600">
-                <div className="flex items-start gap-2">
-                  <span className="text-purple-600 font-medium min-w-[20px]">1.</span>
-                  <span>Opening Remarks</span>
-                </div>
-                <div className="flex items-start gap-2">
-                  <span className="text-purple-600 font-medium min-w-[20px]">2.</span>
-                  <span>Introduction to the Concept of Mindful Self-Compassion</span>
-                </div>
-                <div className="flex items-start gap-2">
-                  <span className="text-purple-600 font-medium min-w-[20px]">3.</span>
-                  <span>Core Values and Practice Principles</span>
-                </div>
-                <div className="flex items-start gap-2">
-                  <span className="text-purple-600 font-medium min-w-[20px]">4.</span>
-                  <span>Mindfulness Practice Exercises:</span>
-                  <ul className="list-disc list-inside ml-2 text-gray-500">
-                    <li>Affectionate Breathing</li>
-                    <li>Self-Kindness Touch</li>
-                    <li>Sense &amp; Savor Practice</li>
-                  </ul>
-                </div>
-                <div className="flex items-start gap-2">
-                  <span className="text-purple-600 font-medium min-w-[20px]">5.</span>
-                  <span>Closing Remarks</span>
-                </div>
-              </div>
-            </div>
 
             {/* Meeting Details */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -118,7 +84,7 @@ const WorkshopRoom = ({
                 <Calendar className="w-5 h-5 text-purple-600" />
                 <div>
                   <p className="text-xs text-gray-500">Date</p>
-                  <p className="font-semibold text-gray-800">{workshopDate}</p>
+                  <p className="font-semibold text-gray-800">21st July, 2026</p>
                 </div>
               </div>
               <div className="flex items-center gap-3 p-4 bg-orange-50 rounded-xl">
@@ -145,28 +111,6 @@ const WorkshopRoom = ({
           </div>
         </div>
 
-        {/* Workshop Info */}
-        <div className="mt-8 bg-white rounded-2xl shadow-xl p-6">
-          <h3 className="font-bold text-gray-800 mb-4 flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-orange-500" />
-            Workshop Details
-          </h3>
-          <div className="space-y-3 text-sm text-gray-600">
-            <p>
-              <strong>Facilitator:</strong> {facilitator}
-            </p>
-            <p>
-              <strong>Program Coordinator:</strong> {coordinator}
-            </p>
-            <p>
-              <strong>Organizer:</strong> Africana College of Professionals in collaboration with the Royal Minds Educational and Counselling Consultancy and the Susan Gitau Counseling Foundation
-            </p>
-            <p className="text-xs text-gray-400 mt-4">
-              <ShieldCheck className="w-4 h-4 inline mr-1 text-green-500" />
-              This is a secure, authenticated workshop page. Only registered participants have access.
-            </p>
-          </div>
-        </div>
 
         {/* Footer */}
         <div className="mt-8 text-center text-xs text-gray-400">
