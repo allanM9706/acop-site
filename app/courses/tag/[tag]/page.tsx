@@ -6,8 +6,8 @@ import Image from 'next/image';
 import { getAllCourses, formatDate, getCourseTypeDisplayName, decodeHtmlEntities } from '@/lib/wordpress';
 import { ChevronRight } from 'lucide-react';
 
-// Enable ISR - revalidate every 60 seconds
-export const revalidate = 60;
+// Enable ISR - revalidate every 1 week 
+export const revalidate = 604800;
 
 // Helper to clean excerpt (strip HTML tags and decode entities)
 const cleanExcerpt = (text: string | null | undefined, maxLength: number = 120): string => {

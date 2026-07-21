@@ -46,8 +46,8 @@ export const metadata: Metadata = {
   },
 };
 
-// Enable ISR - revalidate every 60 seconds
-export const revalidate = 60;
+// Enable ISR - revalidate every 1 week
+export const revalidate = 604800;
 
 export default function BecomeAuthorPage() {
   return <BecomeAuthor />;

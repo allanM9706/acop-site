@@ -39,7 +39,7 @@ export async function generateStaticParams() {
 }
 
 // Enable ISR - revalidate every 60 seconds
-export const revalidate = 60
+export const revalidate = 604800
 
 // Helper to get category display name
 function getCategoryDisplayName(categories: { name: string; slug: string }[] | undefined): string {
