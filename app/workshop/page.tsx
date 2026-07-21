@@ -12,15 +12,24 @@ interface WorkshopPageProps {
   }>;
 }
 
-export async function generateMetadata({ 
-  searchParams 
+// Default workshop details - easily updateable
+const DEFAULT_WORKSHOP = {
+  title: "Teachers' Mindful Self-Compassion Online Workshop",
+  date: '20th - 22nd July 2026',
+  time: '6:00 p.m. - 8:00 p.m. (EAT)',
+  facilitator: 'Dr. Susan Gitau',
+  coordinator: 'Alice Songok',
+};
+
+export async function generateMetadata({
+  searchParams,
 }: WorkshopPageProps): Promise<Metadata> {
   const params = await searchParams;
-  
-  const workshopTitle = params?.title || 'Teachers\' Mindful Self-Compassion Online Workshop';
-  const workshopDate = params?.date || '20th - 22nd July 2026';
-  const facilitator = params?.facilitator || 'Dr. Susan Gitau';
-  
+
+  const workshopTitle = params?.title || DEFAULT_WORKSHOP.title;
+  const workshopDate = params?.date || DEFAULT_WORKSHOP.date;
+  const facilitator = params?.facilitator || DEFAULT_WORKSHOP.facilitator;
+
   const websiteUrl = 'https://www.acop.co.ke';
   const pageUrl = `${websiteUrl}/workshop`;
   const ogImageUrl = `${websiteUrl}/workshop.webp`;
@@ -69,21 +78,21 @@ export async function generateMetadata({
 
 export default async function WorkshopPage({ searchParams }: WorkshopPageProps) {
   const params = await searchParams;
-  
+
   const meetingLink = process.env.WORKSHOP_LINK || '';
-  
-  // Optional: Allow custom workshop details via URL parameters
-  const workshopTitle = params?.title || 'Teachers\' Mindful Self-Compassion Online Workshop';
-  const workshopDate = params?.date || '20th - 22nd July 2026';
-  const workshopTime = params?.time || '6:00 p.m. - 8:00 p.m. (EAT)';
-  const facilitator = params?.facilitator || 'Dr. Susan Gitau';
-  const coordinator = params?.coordinator || 'Alice Songok';
+
+  // Use URL params or fallback to defaults
+  const workshopTitle = params?.title || DEFAULT_WORKSHOP.title;
+  const workshopDate = params?.date || DEFAULT_WORKSHOP.date;
+  const workshopTime = params?.time || DEFAULT_WORKSHOP.time;
+  const facilitator = params?.facilitator || DEFAULT_WORKSHOP.facilitator;
+  const coordinator = params?.coordinator || DEFAULT_WORKSHOP.coordinator;
 
   if (!meetingLink) {
     return notFound();
   }
 
-  // Add JSON-LD structured data for the workshop
+  // JSON-LD structured data for the workshop
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'EducationalEvent',
@@ -114,7 +123,7 @@ export default async function WorkshopPage({ searchParams }: WorkshopPageProps) 
           __html: JSON.stringify(jsonLd),
         }}
       />
-      
+
       <main className="min-h-screen">
         <WorkshopWrapper
           meetingLink={meetingLink}

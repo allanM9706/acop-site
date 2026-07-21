@@ -32,7 +32,6 @@ const WorkshopLogin = ({ onSuccess, workshopTitle = 'Workshop' }: WorkshopLoginP
       const data = await response.json();
 
       if (data.success) {
-        document.cookie = 'workshop_authenticated=true; path=/; max-age=3600';
         onSuccess();
       } else {
         setError('Incorrect password. Please try again.');
