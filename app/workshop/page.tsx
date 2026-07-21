@@ -32,7 +32,7 @@ export async function generateMetadata({
 
   const websiteUrl = 'https://www.acop.co.ke';
   const pageUrl = `${websiteUrl}/workshop`;
-  const ogImageUrl = `${websiteUrl}/workshop.webp`;
+  const ogImageUrl = `${websiteUrl}/workshopday2.jpeg`;
 
   return {
     title: `${workshopTitle} | Workshop Access | Africana College of Professionals`,

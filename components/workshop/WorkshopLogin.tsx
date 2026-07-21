@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { LockKeyhole, Eye, EyeOff, ShieldCheck } from 'lucide-react';
+import { LockKeyhole, Eye, EyeOff, ShieldCheck, Calendar, Clock } from 'lucide-react';
 import Image from 'next/image';
 
 interface WorkshopLoginProps {
@@ -62,6 +62,25 @@ const WorkshopLogin = ({ onSuccess, workshopTitle = 'Workshop' }: WorkshopLoginP
           <p className="text-gray-600 text-sm mt-1">
             Enter the password to access the {workshopTitle}
           </p>
+          
+          {/* Today's Agenda Preview */}
+          <div className="mt-4 bg-white/80 backdrop-blur-sm rounded-xl p-4 text-left border border-purple-100 shadow-sm">
+            <p className="text-xs font-semibold text-purple-700 mb-2 flex items-center gap-2">
+              <Calendar className="w-3 h-3" />
+              Today&apos;s Agenda - Day 2
+            </p>
+            <ul className="text-xs text-gray-600 space-y-1.5 list-disc list-inside">
+              <li>Opening Remarks</li>
+              <li>Introduction to the Concept of Mindful Self-Compassion</li>
+              <li>Core Values and Practice Principles</li>
+              <li>Mindfulness Practice Exercises (Affectionate Breathing, Self-Kindness Touch, Sense &amp; Savor Practice)</li>
+              <li>Closing Remarks</li>
+            </ul>
+            <div className="mt-2 flex items-center gap-2 text-xs text-gray-400">
+              <Clock className="w-3 h-3" />
+              <span>6:00 p.m. - 8:00 p.m. (EAT)</span>
+            </div>
+          </div>
         </div>
 
         {/* Login Card */}
