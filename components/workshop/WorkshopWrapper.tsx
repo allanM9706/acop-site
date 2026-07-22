@@ -16,6 +16,7 @@ interface WorkshopWrapperProps {
   coordinator?: string;
   slug?: string;
   agendaItems?: string[];
+  featuredImage?: string | null;  // ✅ Make sure this exists
 }
 
 export default function WorkshopWrapper({
@@ -27,6 +28,7 @@ export default function WorkshopWrapper({
   coordinator = 'Alice Songok',
   slug,
   agendaItems = [],
+  featuredImage = null,  // ✅ Default to null
 }: WorkshopWrapperProps) {
   const router = useRouter();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -170,6 +172,9 @@ export default function WorkshopWrapper({
     setExtendCount(0);
   };
 
+  // ✅ DEBUG: Log to check if featuredImage is received
+  console.log('🔍 WorkshopWrapper received featuredImage:', featuredImage);
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -228,6 +233,7 @@ export default function WorkshopWrapper({
       workshopDate={workshopDate}
       workshopTime={workshopTime}
       agendaItems={agendaItems}
+      featuredImage={featuredImage}  // ✅ Pass the image to WorkshopLogin
     />
   );
 }

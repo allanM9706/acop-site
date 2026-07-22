@@ -12,7 +12,7 @@ interface WorkshopAccessPageProps {
 export const dynamicParams = true;
 export const revalidate = 2592000; // 1 month
 
-// Generate static paths at build time
+// Generate static paths at build time - same as news
 export async function generateStaticParams() {
   const articles = await getAllNewsSlugs();
   return articles.map((article) => ({ slug: article.slug }));
@@ -81,21 +81,38 @@ export async function generateMetadata({
 export default async function WorkshopAccessPage({
   params,
 }: WorkshopAccessPageProps) {
+  console.log('🔍 [1] WorkshopAccessPage - Starting...');
   const { slug } = await params;
+  console.log(`🔍 [2] WorkshopAccessPage - Slug: ${slug}`);
 
   const meetingLink = process.env.WORKSHOP_LINK || '';
+  console.log(`🔍 [3] WorkshopAccessPage - Meeting Link: ${meetingLink}`);
 
   if (!slug || !meetingLink) {
+    console.log('❌ [4] WorkshopAccessPage - Missing slug or meetingLink');
     return notFound();
   }
 
   // Fetch the article using the same function as news
+  console.log('🔍 [5] WorkshopAccessPage - Fetching article from WordPress...');
   const article = await getNewsBySlug(slug);
+  console.log(`🔍 [6] WorkshopAccessPage - Article found: ${!!article}`);
+  
+  if (article) {
+    console.log(`🔍 [7] WorkshopAccessPage - Article title: ${article.title}`);
+    console.log(`🔍 [8] WorkshopAccessPage - Article has featuredImage: ${!!article.featuredImage}`);
+    console.log(`🔍 [9] WorkshopAccessPage - Article featuredImage URL: ${article.featuredImage?.node?.sourceUrl || 'null'}`);
+    console.log(`🔍 [10] WorkshopAccessPage - Article newsType: ${article.newsMetadata?.newsType?.join(', ') || 'null'}`);
+    console.log(`🔍 [11] WorkshopAccessPage - Article eventType: ${article.newsMetadata?.eventType || 'null'}`);
+  }
 
   // If no article found or not an event, return 404
   if (!article || !article.newsMetadata?.newsType?.includes('event')) {
+    console.log('❌ [12] WorkshopAccessPage - Article not found or not an event');
     return notFound();
   }
+
+  console.log('✅ [13] WorkshopAccessPage - Article is valid event');
 
   const metadata = article.newsMetadata;
 
@@ -110,12 +127,17 @@ export default async function WorkshopAccessPage({
   const facilitator = metadata?.facilitator || 'Dr. Susan Gitau';
   const coordinator = metadata?.programCoordinator || 'Alice Songok';
 
-  // Parse agenda items from the body content
-  // This assumes agenda items are in a list format in the body
-  const agendaItems: string[] = [];
-  // You can parse the body to extract agenda items
-  // For now, we'll use a default set if available
-  // In the future, you can add an ACF field for agenda items
+  // Get featured image
+  const featuredImage = article.featuredImage?.node?.sourceUrl || null;
+  console.log(`🔍 [14] WorkshopAccessPage - Final featuredImage URL: ${featuredImage}`);
+
+  console.log('📝 [15] WorkshopAccessPage - Workshop details:');
+  console.log(`  - Title: ${workshopTitle}`);
+  console.log(`  - Date: ${workshopDate}`);
+  console.log(`  - Time: ${workshopTime}`);
+  console.log(`  - Featured Image: ${featuredImage}`);
+  console.log(`  - Facilitator: ${facilitator}`);
+  console.log(`  - Coordinator: ${coordinator}`);
 
   // JSON-LD structured data for the workshop
   const jsonLd = {
@@ -136,6 +158,8 @@ export default async function WorkshopAccessPage({
     },
   };
 
+  console.log('✅ [16] WorkshopAccessPage - Rendering WorkshopWrapper');
+
   return (
     <>
       <script
@@ -154,7 +178,7 @@ export default async function WorkshopAccessPage({
           facilitator={facilitator}
           coordinator={coordinator}
           slug={slug}
-          agendaItems={agendaItems}
+          featuredImage={featuredImage}
         />
       </main>
     </>

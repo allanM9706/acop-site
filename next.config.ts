@@ -2,6 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  
   images: {
     remotePatterns: [
       {
@@ -41,9 +42,46 @@ const nextConfig: NextConfig = {
         port: '',
         pathname: '/avatar/**',
       },
-    ]
+    ],
+    // ⬇️ ADD THESE TO REDUCE CPU USAGE ⬇️
+    formats: ['image/webp'],
+    minimumCacheTTL: 86400, // Cache images for 24 hours
+    dangerouslyAllowSVG: true,
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
-  
+
+  // ⬇️ ADD CACHE HEADERS FOR STATIC ASSETS ⬇️
+  async headers() {
+    return [
+      {
+        source: '/_next/static/(.*)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
+      {
+        source: '/images/(.*)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=86400, stale-while-revalidate=604800',
+          },
+        ],
+      },
+      {
+        source: '/favicon.ico',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=86400, immutable',
+          },
+        ],
+      },
+    ];
+  },
 };
 
 export default nextConfig;

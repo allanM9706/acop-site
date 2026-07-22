@@ -306,7 +306,7 @@ export default async function WorkshopDetailPage({ params }: { params: Promise<{
                     {/* Action Buttons - Below Event Details (Visible on ALL devices) */}
                     <div className="flex flex-wrap gap-3 mt-6 pt-6 border-t border-purple-200">
                       <Link
-                        href={`/workshop/${accessSlug}`}
+                        href={`/access-workshop/${accessSlug}`}
                         className="flex-1 min-w-[140px] inline-flex items-center justify-center gap-2 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2.5 rounded-lg font-semibold transition-colors text-sm"
                       >
                         <LogIn className="w-4 h-4" />

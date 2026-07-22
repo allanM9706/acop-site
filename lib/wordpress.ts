@@ -2,6 +2,7 @@
 // lib/wordpress.ts
 
 import he from 'he';
+import { unstable_cache } from 'next/cache';
 
 const API_URL = process.env.WORDPRESS_API_URL;
 
@@ -67,9 +68,9 @@ export interface NewsMetadata {
   eventTime: string | null;
   eventVenue: string | null;
   eventLink: string | null;
-  eventType: string | null;       // NEW
-  facilitator: string | null;     // NEW
-  programCoordinator: string | null;     // NEW
+  eventType: string | null;
+  facilitator: string | null;
+  programCoordinator: string | null;
   deadlineDate: string | null;
   submissionLink: string | null;
   severityLevel: string | null;
@@ -168,6 +169,20 @@ interface AllCoursesResponse {
 interface SingleCourseResponse {
   course: Course | null;
 }
+
+// ============================================
+// Cache Keys
+// ============================================
+
+const CACHE_KEYS = {
+  ALL_NEWS: 'all-news',
+  NEWS_BY_SLUG: 'news-by-slug',
+  ALL_TAGS: 'all-tags',
+  ALL_COURSES: 'all-courses',
+  COURSE_BY_SLUG: 'course-by-slug',
+} as const;
+
+const CACHE_REVALIDATE = 86400; // 24 hours
 
 // ============================================
 // Shared Functions
@@ -279,7 +294,7 @@ export function getCourseTypeDisplayName(courseType: string[]): string {
 }
 
 // ============================================
-// Event Date Range Helper Functions (NEW)
+// Event Date Range Helper Functions
 // ============================================
 
 /**
@@ -390,15 +405,101 @@ export function getEventStatus(
 }
 
 // ============================================
-// News Functions
+// Cached News Functions
 // ============================================
 
-// Get all news posts
-export async function getAllNews(): Promise<NewsArticle[]> {
-  const data = await fetchAPI<AllNewsResponse>(`
-    query GetAllNews {
-      allNews {
-        nodes {
+// Get all news posts with caching
+export const getAllNews = unstable_cache(
+  async (): Promise<NewsArticle[]> => {
+    const data = await fetchAPI<AllNewsResponse>(`
+      query GetAllNews {
+        allNews {
+          nodes {
+            id
+            title
+            date
+            slug
+            excerpt
+            featuredImage {
+              node {
+                sourceUrl
+                altText
+                mediaDetails {
+                  width
+                  height
+                }
+              }
+            }
+            author {
+              node {
+                firstName
+                lastName
+                description
+                email
+                avatar {
+                  url
+                }
+                twitter
+                tiktok
+                facebook
+                linkedin
+                instagram
+                phone
+                website
+              }
+            }
+            newsCategories {
+              nodes {
+                name
+                slug
+              }
+            }
+            newsTags {
+              nodes {
+                name
+                slug
+              }
+            }
+            newsMetadata {
+              newsType
+              body
+              eventDate
+              eventenddate
+              eventTime
+              eventVenue
+              eventLink
+              eventType
+              facilitator
+              programCoordinator
+              deadlineDate
+              submissionLink
+              severityLevel
+              intakeSemester
+              masomoPortalLink
+              attachment {
+                node {
+                  mediaItemUrl
+                  title
+                }
+              }
+            }
+          }
+        }
+      }
+    `);
+
+    return data?.allNews?.nodes || [];
+  },
+  [CACHE_KEYS.ALL_NEWS],
+  { revalidate: CACHE_REVALIDATE }
+);
+
+// Get single news post by slug with caching
+export const getNewsBySlug = unstable_cache(
+  async (slug: string): Promise<NewsArticle | null> => {
+    const data = await fetchAPI<SingleNewsResponse>(`
+      query GetNewsBySlug($id: ID!) {
+        news(id: $id, idType: SLUG) {
           id
           title
           date
@@ -428,8 +529,9 @@ export async function getAllNews(): Promise<NewsArticle[]> {
               facebook
               linkedin
               instagram
-              phone
+              youtube
               website
+              phone
             }
           }
           newsCategories {
@@ -469,94 +571,15 @@ export async function getAllNews(): Promise<NewsArticle[]> {
           }
         }
       }
-    }
-  `);
+    `, { variables: { id: slug } });
+    
+    return data?.news || null;
+  },
+  [CACHE_KEYS.NEWS_BY_SLUG],
+  { revalidate: CACHE_REVALIDATE }
+);
 
-  return data?.allNews?.nodes || [];
-}
-
-// Get single news post by slug
-export async function getNewsBySlug(slug: string): Promise<NewsArticle | null> {
-  const data = await fetchAPI<SingleNewsResponse>(`
-    query GetNewsBySlug($id: ID!) {
-      news(id: $id, idType: SLUG) {
-        id
-        title
-        date
-        slug
-        excerpt
-        featuredImage {
-          node {
-            sourceUrl
-            altText
-            mediaDetails {
-              width
-              height
-            }
-          }
-        }
-        author {
-          node {
-            firstName
-            lastName
-            description
-            email
-            avatar {
-              url
-            }
-            twitter
-            tiktok
-            facebook
-            linkedin
-            instagram
-            youtube
-            website
-            phone
-          }
-        }
-        newsCategories {
-          nodes {
-            name
-            slug
-          }
-        }
-        newsTags {
-          nodes {
-            name
-            slug
-          }
-        }
-        newsMetadata {
-          newsType
-          body
-          eventDate
-          eventenddate
-          eventTime
-          eventVenue
-          eventLink
-          eventType
-          facilitator
-          programCoordinator
-          deadlineDate
-          submissionLink
-          severityLevel
-          intakeSemester
-          masomoPortalLink
-          attachment {
-            node {
-              mediaItemUrl
-              title
-            }
-          }
-        }
-      }
-    }
-  `, { variables: { id: slug } });
-  
-  return data?.news || null;
-}
-
-// Get all news slugs for static generation
+// Get all news slugs for static generation (no caching needed)
 export async function getAllNewsSlugs(): Promise<{ slug: string }[]> {
   const news = await getAllNews();
   return news.map((article) => ({ slug: article.slug }));
@@ -595,130 +618,134 @@ export async function getRecentNews(limit: number = 3): Promise<NewsArticle[]> {
   return allNews.slice(0, limit);
 }
 
-export async function getAllTags(): Promise<NewsTag[]> {
-  const allNews = await getAllNews();
-  const tagsMap = new Map<string, string>();
-  
-  allNews.forEach((article) => {
-    if (article.newsTags?.nodes) {
-      article.newsTags.nodes.forEach((tag) => {
-        if (!tagsMap.has(tag.slug)) {
-          tagsMap.set(tag.slug, tag.name);
-        }
-      });
-    }
-  });
-  
-  return Array.from(tagsMap.entries()).map(([slug, name]) => ({ name, slug }));
-}
-
-// ============================================
-// Course Functions (Updated with Pagination)
-// ============================================
-
-// Get all courses with pagination support
-export async function getAllCourses(): Promise<Course[]> {
-  let allCourses: Course[] = [];
-  let hasNextPage = true;
-  let after = '';
-  let pageCount = 0;
-  
-  while (hasNextPage) {
-    pageCount++;
-    console.log(`Fetching courses page ${pageCount}...`);
+// Get all tags with caching
+export const getAllTags = unstable_cache(
+  async (): Promise<NewsTag[]> => {
+    const allNews = await getAllNews();
+    const tagsMap = new Map<string, string>();
     
-    const data = await fetchAPI<AllCoursesResponse>(`
-      query GetAllCourses($first: Int = 100, $after: String = "") {
-        courses(first: $first, after: $after) {
-          pageInfo {
-            hasNextPage
-            endCursor
+    allNews.forEach((article) => {
+      if (article.newsTags?.nodes) {
+        article.newsTags.nodes.forEach((tag) => {
+          if (!tagsMap.has(tag.slug)) {
+            tagsMap.set(tag.slug, tag.name);
           }
-          nodes {
-            id
-            title
-            date
-            slug
-            excerpt
-            featuredImage {
-              node {
-                sourceUrl
-                altText
-                mediaDetails {
-                  width
-                  height
+        });
+      }
+    });
+    
+    return Array.from(tagsMap.entries()).map(([slug, name]) => ({ name, slug }));
+  },
+  [CACHE_KEYS.ALL_TAGS],
+  { revalidate: CACHE_REVALIDATE }
+);
+
+// ============================================
+// Cached Course Functions
+// ============================================
+
+// Get all courses with pagination support and caching
+export const getAllCourses = unstable_cache(
+  async (): Promise<Course[]> => {
+    let allCourses: Course[] = [];
+    let hasNextPage = true;
+    let after = '';
+    let pageCount = 0;
+    
+    while (hasNextPage) {
+      pageCount++;
+      console.log(`Fetching courses page ${pageCount}...`);
+      
+      const data = await fetchAPI<AllCoursesResponse>(`
+        query GetAllCourses($first: Int = 100, $after: String = "") {
+          courses(first: $first, after: $after) {
+            pageInfo {
+              hasNextPage
+              endCursor
+            }
+            nodes {
+              id
+              title
+              date
+              slug
+              excerpt
+              featuredImage {
+                node {
+                  sourceUrl
+                  altText
+                  mediaDetails {
+                    width
+                    height
+                  }
+                }
+              }
+              courseDetails {
+                courseType
+                courseCode
+                duration
+                fee
+                intakeMonths
+                studyMode
+                leadInstructor
+                specialization
+                careerPathways
+                entryRequirements
+                syllabus
+                videoUrl
+              }
+              courseCategories {
+                nodes {
+                  name
+                  slug
+                }
+              }
+              courseTags {
+                nodes {
+                  name
+                  slug
                 }
               }
             }
-            courseDetails {
-              courseType
-              courseCode
-              duration
-              fee
-              intakeMonths
-              studyMode
-              leadInstructor
-              specialization
-              careerPathways
-              entryRequirements
-              syllabus
-              videoUrl
-            }
-            courseCategories {
-              nodes {
-                name
-                slug
-              }
-            }
-            courseTags {
-              nodes {
-                name
-                slug
-              }
-            }
           }
         }
+      `, { variables: { first: 100, after } });
+      
+      const page = data?.courses;
+      
+      if (page?.nodes && page.nodes.length > 0) {
+        allCourses = [...allCourses, ...page.nodes];
+        console.log(`Page ${pageCount}: Retrieved ${page.nodes.length} courses. Total so far: ${allCourses.length}`);
       }
-    `, { variables: { first: 100, after } });
-    
-    const page = data?.courses;
-    
-    if (page?.nodes && page.nodes.length > 0) {
-      allCourses = [...allCourses, ...page.nodes];
-      console.log(`Page ${pageCount}: Retrieved ${page.nodes.length} courses. Total so far: ${allCourses.length}`);
+      
+      hasNextPage = page?.pageInfo?.hasNextPage || false;
+      after = page?.pageInfo?.endCursor || '';
+      
+      // Safety break to prevent infinite loops
+      if (pageCount > 50 || allCourses.length > 1000) {
+        console.warn('Breaking pagination loop - safety limit reached');
+        break;
+      }
     }
     
-    hasNextPage = page?.pageInfo?.hasNextPage || false;
-    after = page?.pageInfo?.endCursor || '';
+    console.log(`✅ Total courses fetched: ${allCourses.length}`);
     
-    // Safety break to prevent infinite loops
-    if (pageCount > 50 || allCourses.length > 1000) {
-      console.warn('Breaking pagination loop - safety limit reached');
-      break;
-    }
-  }
-  
-  console.log(`✅ Total courses fetched: ${allCourses.length}`);
-  
-  // Sort courses to prioritize Marriage & Family AND Counseling Psychology courses
-  return prioritizePriorityCourses(allCourses);
-}
+    // Sort courses to prioritize priority courses
+    return prioritizePriorityCourses(allCourses);
+  },
+  [CACHE_KEYS.ALL_COURSES],
+  { revalidate: CACHE_REVALIDATE }
+);
 
-// Helper function to prioritize Marriage & Family and Counseling Psychology courses
 // Helper function to prioritize Counseling Psychology and Marriage & Family courses
 function prioritizePriorityCourses(courses: Course[]): Course[] {
-  // Debug: Log all course titles
   console.log('📚 All course titles from WordPress:');
   courses.forEach(course => {
     console.log(`  - "${course.title}" (${course.courseDetails?.courseType?.[0] || 'no type'})`);
   });
   
-  // Define priority keywords for both course types
   const priorityKeywords = [
-    // Counseling Psychology related (highest priority)
     'counseling psychology',
     'counselling psychology',
-    // Marriage & Family related
     'marriage and family',
     'marriage & family',
     'family therapy',
@@ -726,7 +753,6 @@ function prioritizePriorityCourses(courses: Course[]): Course[] {
     'couples counselling'
   ];
   
-  // Separate courses into priority and non-priority
   const priorityCourses: Course[] = [];
   const otherCourses: Course[] = [];
   
@@ -744,30 +770,18 @@ function prioritizePriorityCourses(courses: Course[]): Course[] {
     }
   });
   
-  // Sort priority courses by custom order:
-  // 1. Diploma in Counseling Psychology (highest priority)
-  // 2. Certificate in Counseling Psychology
-  // 3. Diploma in Marriage and Family
-  // 4. Any other priority courses (by type: diploma > certificate > short-course)
   priorityCourses.sort((a, b) => {
     const aTitle = a.title.toLowerCase();
     const bTitle = b.title.toLowerCase();
     const aType = a.courseDetails?.courseType?.[0] || '';
     const bType = b.courseDetails?.courseType?.[0] || '';
     
-    // Define specific priority order
     const getSpecificPriority = (title: string, type: string): number => {
-      // Highest priority: Diploma in Counseling Psychology
       if (title.includes('diploma') && (title.includes('counseling psychology') || title.includes('counselling psychology'))) return 1;
-      // Second priority: Certificate in Counseling Psychology
       if (title.includes('certificate') && (title.includes('counseling psychology') || title.includes('counselling psychology'))) return 2;
-      // Third priority: Diploma in Marriage and Family
       if (title.includes('diploma in marriage and family')) return 3;
-      // Fourth priority: Any other diploma in priority list
       if (type === 'diploma') return 4;
-      // Fifth priority: Any other certificate in priority list
       if (type === 'certificate') return 5;
-      // Sixth priority: Short courses in priority list
       if (type === 'short-course') return 6;
       return 7;
     };
@@ -779,7 +793,6 @@ function prioritizePriorityCourses(courses: Course[]): Course[] {
       return aPriority - bPriority;
     }
     
-    // If same priority, sort by date (newest first)
     return new Date(b.date).getTime() - new Date(a.date).getTime();
   });
   
@@ -792,62 +805,65 @@ function prioritizePriorityCourses(courses: Course[]): Course[] {
   }
   console.log(`📊 Other courses: ${otherCourses.length}`);
   
-  // Return priority courses first, then the rest
   return [...priorityCourses, ...otherCourses];
 }
 
-// Get single course by slug
-export async function getCourseBySlug(slug: string): Promise<Course | null> {
-  const data = await fetchAPI<SingleCourseResponse>(`
-    query GetCourseBySlug($id: ID!) {
-      course(id: $id, idType: SLUG) {
-        id
-        title
-        date
-        slug
-        excerpt
-        featuredImage {
-          node {
-            sourceUrl
-            altText
-            mediaDetails {
-              width
-              height
+// Get single course by slug with caching
+export const getCourseBySlug = unstable_cache(
+  async (slug: string): Promise<Course | null> => {
+    const data = await fetchAPI<SingleCourseResponse>(`
+      query GetCourseBySlug($id: ID!) {
+        course(id: $id, idType: SLUG) {
+          id
+          title
+          date
+          slug
+          excerpt
+          featuredImage {
+            node {
+              sourceUrl
+              altText
+              mediaDetails {
+                width
+                height
+              }
+            }
+          }
+          courseDetails {
+            courseType
+            courseCode
+            duration
+            fee
+            intakeMonths
+            studyMode
+            leadInstructor
+            specialization
+            careerPathways
+            entryRequirements
+            syllabus
+            videoUrl
+          }
+          courseCategories {
+            nodes {
+              name
+              slug
+            }
+          }
+          courseTags {
+            nodes {
+              name
+              slug
             }
           }
         }
-        courseDetails {
-          courseType
-          courseCode
-          duration
-          fee
-          intakeMonths
-          studyMode
-          leadInstructor
-          specialization
-          careerPathways
-          entryRequirements
-          syllabus
-          videoUrl
-        }
-        courseCategories {
-          nodes {
-            name
-            slug
-          }
-        }
-        courseTags {
-          nodes {
-            name
-            slug
-          }
-        }
       }
-    }
-  `, { variables: { id: slug } });
-  
-  return data?.course || null;
-}
+    `, { variables: { id: slug } });
+    
+    return data?.course || null;
+  },
+  [CACHE_KEYS.COURSE_BY_SLUG],
+  { revalidate: CACHE_REVALIDATE }
+);
 
 // Get all course slugs for static generation
 export async function getAllCourseSlugs(): Promise<{ slug: string }[]> {
