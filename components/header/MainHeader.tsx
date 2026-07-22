@@ -212,7 +212,7 @@ export const MainHeader = ({ hasRecentNews = false }: MainHeaderProps) => {
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   <CalendarDays className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                  <span className="text-xs sm:text-sm whitespace-nowrap">Workshop</span>
+                  <span className="text-xs sm:text-sm whitespace-nowrap">Workshops</span>
                 </Link>
               </motion.div>
 
@@ -227,7 +227,7 @@ export const MainHeader = ({ hasRecentNews = false }: MainHeaderProps) => {
                   className="inline-flex items-center justify-center px-2 sm:px-4 md:px-5 py-1.5 sm:py-2 bg-primary text-white font-semibold rounded-full hover:bg-primary/90 transition-all duration-300 hover:shadow-lg hover:shadow-primary/25 active:scale-100 group whitespace-nowrap"
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  <span className="text-xs sm:text-sm md:text-base whitespace-nowrap">Apply Course</span>
+                  <span className="text-xs sm:text-sm md:text-base whitespace-nowrap">Register SEPT Intake</span>
                   <ChevronRight className="hidden sm:block ml-1 w-3 h-3 sm:w-4 sm:h-4 group-hover:translate-x-1 transition-transform duration-200" />
                 </Link>
               </motion.div>
