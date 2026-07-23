@@ -176,13 +176,24 @@ export default async function GetStartedPage() {
                     </div>
                   </div>
                   
-                  <Link
-                    href="/courses"
-                    className="inline-flex items-center gap-2 bg-white text-orange-600 px-6 py-2.5 rounded-lg font-semibold hover:bg-gray-100 transition-all group"
-                  >
-                    Our Courses
-                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                  </Link>
+                  <div className="flex flex-wrap gap-3">
+                    <Link
+                      href="/courses"
+                      className="inline-flex items-center gap-2 bg-white text-orange-600 px-6 py-2.5 rounded-lg font-semibold hover:bg-gray-100 transition-all group"
+                    >
+                      Our Courses
+                      <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                    </Link>
+                    
+                    {/* Conspicuous Apply Diploma Counseling Psychology Button - No Animation */}
+                    <Link
+                      href="/apply/counseling-psychology"
+                      className="inline-flex items-center gap-2 bg-gradient-to-r from-yellow-400 via-orange-500 to-purple-600 text-white px-6 py-2.5 rounded-lg font-bold text-sm md:text-base shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 border-2 border-white/30"
+                    >
+                      <GraduationCap className="w-4 h-4 md:w-5 md:h-5" />
+                      <span>Apply Diploma Counseling Psychology</span>
+                    </Link>
+                  </div>
                 </div>
               </div>
             </div>
@@ -199,7 +210,7 @@ export default async function GetStartedPage() {
             </div>
           </div>
 
-          {/* Right Column - Dynamic Sidebar from WordPress (NO ShareButtons here anymore) */}
+          {/* Right Column - Dynamic Sidebar from WordPress */}
           <aside className="lg:w-1/3 space-y-6">
             
             {/* Quick Contact Card */}
